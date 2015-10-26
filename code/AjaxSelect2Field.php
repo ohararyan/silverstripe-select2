@@ -29,7 +29,7 @@ class AjaxSelect2Field extends TextField{
 		Requirements::javascript(SELECT2_MODULE . "/select2/select2.js");
 		Requirements::javascript(SELECT2_MODULE . '/javascript/ajaxselect2.init.js');
 		Requirements::css(SELECT2_MODULE . "/select2/select2.min.css");
-			Requirements::css(SELECT2_MODULE . "/css/ajaxSelect2css.css");
+			Requirements::css(SELECT2_MODULE . "/css/ajaxSelect2.css");
 		return parent::Field($properties);
 	}
 
