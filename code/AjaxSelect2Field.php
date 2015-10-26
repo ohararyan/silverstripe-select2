@@ -8,7 +8,7 @@
 class AjaxSelect2Field extends TextField{
 
 	private static $allowed_actions = array('search');
-	
+
 	protected $config = array(
 		'classToSearch' 		=> 'SiteTree',
 		'searchFields' 			=> array('Title'),
@@ -29,19 +29,20 @@ class AjaxSelect2Field extends TextField{
 		Requirements::javascript(SELECT2_MODULE . "/select2/select2.js");
 		Requirements::javascript(SELECT2_MODULE . '/javascript/ajaxselect2.init.js');
 		Requirements::css(SELECT2_MODULE . "/select2/select2.min.css");
+			Requirements::css(SELECT2_MODULE . "/css/ajaxSelect2css.css");
 		return parent::Field($properties);
 	}
 
 
 	public function search($request){
 		$list = DataList::create($this->getConfig('classToSearch'));
-		
+
 		$params = array();
 		$searchFields = $this->getConfig('searchFields');
 		foreach($searchFields as $searchField) {
 			$name = (strpos($searchField, ':') !== FALSE) ? $searchField : "$searchField:partialMatch";
 			$params[$name] = $request->getVar('term');
-		}	
+		}
 		$start = (int)$request->getVar('id') ? (int)$request->getVar('id') * $this->getConfig('resultsLimit') : 0;
 		$list = $list->filterAny($params)->exclude($this->getConfig('excludes'));
 		$filter = $this->getConfig('filter');
@@ -50,7 +51,7 @@ class AjaxSelect2Field extends TextField{
 		}
 		$total = $list->count();
 		$results = $list->sort(strtok($searchFields[0], ':'), 'ASC')->limit($this->getConfig('resultsLimit'), $start);
-		
+
 		$return = array(
 			'list' => array(),
 			'total' => $total
@@ -66,7 +67,7 @@ class AjaxSelect2Field extends TextField{
 			);
 		}
 		Config::inst()->update('SSViewer', 'source_file_comments', $originalSourceFileComments);
-		return Convert::array2json($return);		
+		return Convert::array2json($return);
 	}
 
 
