@@ -31,7 +31,7 @@ The AjaxSelect2Field is a dropdown field that makes use of the ajax result loadi
 A basic implementation will use configuration defaults to provide a dropdown list of SiteTree objects, suitable for searching for and selecting a page.
 
 ```php
-$field = AjaxSelect2Field::create('PageID');
+$field = AjaxSelect2Field::create('PageID', 'Select a page', 'Page');
 ``` 
 
 ### Configuration
@@ -41,8 +41,6 @@ You can configure your instance of AjaxSelect2Field with the following api. The 
 #### Examples
 
 ```php
-// Set a class to search for. Defaults to SiteTree
-$field->setConfig('classToSearch', 'MyCustomObject');
 
 // Set a list of fields to search on. Default is Title 
 $field->setConfig('searchFields', array('Title', 'ID'));
