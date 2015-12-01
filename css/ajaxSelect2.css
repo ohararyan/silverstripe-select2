@@ -1,6 +1,16 @@
-.ajaxselect2Remove {
+/*.ajaxselect2Remove {
 	display: inline-block;
 	margin-left: 10px;
 	line-height: 30px;
 	cursor: pointer;
+}*/
+
+.select2.hasSelection .select2-selection--single {
+	height: auto;
+}
+
+
+.select2-container--classic .select2-selection--single .select2-selection__arrow {
+	height: inherit;
+	bottom: 1px;
 }

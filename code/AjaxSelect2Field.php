@@ -22,8 +22,6 @@ class AjaxSelect2Field extends DropdownField{
 		'multiple'				=> false,
 	);
 
-	protected $sourceObject, $keyField;
-
 	/**
 	 * @param string $name
 	 * @param string $title
@@ -31,9 +29,6 @@ class AjaxSelect2Field extends DropdownField{
 	 * @param null|DataList $value
 	 */
 	public function __construct($name, $title = '', $source = array(), $value = '') {
-
-		$this->sourceObject = $source;
-		$this->keyField     = $value;
 
 		parent::__construct($name, $title, $source, $value);
 	}
@@ -48,18 +43,11 @@ class AjaxSelect2Field extends DropdownField{
 		Requirements::css(SELECT2_MODULE . "/select2/select2.min.css");
 		Requirements::css(SELECT2_MODULE . "/css/ajaxSelect2.css");
 
-		var_dump($this->value);
-		var_dump($this->Value());
-
-
-		// $record = $this->Value() ? $this->objectForKey($this->Value()) : null;
-		// var_dump($record);
+		// var_dump($this->Value());
 
 		$properties = array_merge($properties, array(
 			'Options' => $this->getOptions()
 		));
-
-		// return parent::Field($properties);
 
 		return $this
 				->customise($properties)
@@ -67,69 +55,54 @@ class AjaxSelect2Field extends DropdownField{
 	}
 
 	protected function getOptions() {
-		$options = array();
+		$options = ArrayList::create();
 		$source = $this->getSource();
 
-		if(is_object($source)) {
-			$options[] = new ArrayData(array(
-				'Value' => '1',
-				'Title' => 'Hello'
-			));
+		if(!$source) {
+			$source = new ArrayList();
 		}
 
-		// if($source) {
+		if(is_object($source)) {
+			$selected = false;
+			if ($this->value === '') {
+				$selected = false;
+			} else {
+				foreach($source as $value => $title) {
+					$selected = ($value == $this->value);
+				}
+			}
+		} else {
+			$object = DataObject::get($this->source)->byID($this->Value());
+			if ($object) {
+				$options->push(
+					ArrayData::create(array(
+						'Title' => $object->Title,
+						'Value' => $object->ID,
+						'Selected' => true
+					))
+				);
+			}
 
-			// var_dump($source);
-
-		// 	foreach($source as $value => $title) {
-		// 		$selected = false;
-
-		// 		var_dump($value);
-
-		// 		$options[] = new ArrayData(array(
-		// 			));
-		// 	}
-		// }
-
-		// return $options;
-
-		// $dataClass = $source->dataClass();
+		}
 
 		$values = $this->Value();
 
-
-		var_dump($options);
-		die();
-		return $options;
-
-		// // var_dump($source);
-		// // var_dump($values);
-
-		// if(!$values) {
-		// 	return $options;
-		// }
-
-
-
-	}
-
-
-	/**
-	 * Get the object where the $keyField is equal to a certain value
-	 *
-	 * @param string|int $key
-	 * @return DataObject
-	 */
-	protected function objectForKey($key) {
-		if($this->keyField == 'ID') {
-			return DataObject::get_by_id($this->sourceObject, $key);
-		} else {
-			return DataObject::get_one($this->sourceObject, "\"{$this->keyField}\" = '".Convert::raw2sql($key)."'");
+		if(!$values) {
+			$options->push(
+				ArrayData::create(array(
+					'Value' => '',
+					'Title' => '',
+					'Selected' => true
+				))
+			);
 		}
+
+		return $options;
 	}
 
 	public function search($request){
-		$list = DataList::create($this->getConfig('classToSearch'));
+		// $list = $this->getSource();
+		$list = DataObject::get($this->getSource());
 
 		$params = array();
 		$searchFields = $this->getConfig('searchFields');
@@ -156,8 +129,8 @@ class AjaxSelect2Field extends DropdownField{
 		foreach($results as $object) {
 			$return['list'][] = array(
 				'id' => $object->ID,
-				'resultsContent' => html_entity_decode(SSViewer::fromString($this->getConfig('resultsFormat'))->process($object)),
-				'selectionContent' => SSViewer::fromString($this->getConfig('selectionFormat'))->process($object)
+				'templateResult' => html_entity_decode(SSViewer::fromString($this->getConfig('resultsFormat'))->process($object)),
+				'templateSelection' => SSViewer::fromString($this->getConfig('selectionFormat'))->process($object)
 			);
 		}
 		Config::inst()->update('SSViewer', 'source_file_comments', $originalSourceFileComments);
@@ -192,15 +165,20 @@ class AjaxSelect2Field extends DropdownField{
 		);
 
 
+		// var_dump($this->Value());
+		// var_dump($this->source);
 
-		// var_dump($this->ID());
-		if($this->Value() && $object = DataObject::get($this->getConfig('classToSearch'))->byID($this->Value())){
+
+		if ($this->Value() && $object = DataObject::get($this->source)->byID($this->Value())){
+			// var_dump($object->Title);
 			$originalSourceFileComments = Config::inst()->get('SSViewer', 'source_file_comments');
 			Config::inst()->update('SSViewer', 'source_file_comments', false);
 			$attributes['data-selectioncontent'] = html_entity_decode(SSViewer::fromString($this->getConfig('selectionFormat'))->process($object));
 			Config::inst()->update('SSViewer', 'source_file_comments', $originalSourceFileComments);
+			return $attributes;
 		}
 
 		return $attributes;
 	}
+
 }
